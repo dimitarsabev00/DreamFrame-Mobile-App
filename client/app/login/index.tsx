@@ -1,8 +1,39 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import Colors from "./../../constants/Colors";
+import { useRouter } from "expo-router";
+import { useOAuth, useAuth } from "@clerk/clerk-expo";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 
 export default function LoginScreen() {
+  useWarmUpBrowser();
+  const { signOut } = useAuth();
+  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  const router = useRouter();
+
+  //On Sign In / Continue Button Press Handler
+  const onPress = React.useCallback(async () => {
+    signOut();
+    try {
+      const { createdSessionId, signIn, signUp, setActive } =
+        await startOAuthFlow({
+          redirectUrl: Linking.createURL("/dashboard", {
+            scheme: "dreamFrame-mobile-app",
+          }),
+        });
+
+      if (createdSessionId) {
+        console.log("CREATEd SESSION ID:", createdSessionId);
+        router.replace("../dashboard");
+      } else {
+        // Use signIn or signUp for next steps such as MFA
+      }
+    } catch (err) {
+      console.error("OAuth error", err);
+    }
+  }, []);
+
   return (
     <View>
       <Image
@@ -34,7 +65,7 @@ export default function LoginScreen() {
           Create AI Art in Just on Click
         </Text>
 
-        <TouchableOpacity onPress={() => {}} style={styles.button}>
+        <TouchableOpacity onPress={onPress} style={styles.button}>
           <Text
             style={{
               textAlign: "center",
@@ -78,3 +109,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+export const useWarmUpBrowser = () => {
+  React.useEffect(() => {
+    // Warm up the android browser to improve UX
+    // https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync();
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
+
+WebBrowser.maybeCompleteAuthSession();
