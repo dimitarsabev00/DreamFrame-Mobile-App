@@ -18,14 +18,14 @@ export default function LoginScreen() {
     try {
       const { createdSessionId, signIn, signUp, setActive } =
         await startOAuthFlow({
-          redirectUrl: Linking.createURL("/dashboard", {
+          redirectUrl: Linking.createURL("/(tabs)/home", {
             scheme: "dreamFrame-mobile-app",
           }),
         });
 
       if (createdSessionId) {
-        console.log("CREATEd SESSION ID:", createdSessionId);
-        router.replace("../dashboard");
+        console.log("CREATED SESSION ID:", createdSessionId);
+        router.replace("../(tabs)/home");
       } else {
         // Use signIn or signUp for next steps such as MFA
       }
