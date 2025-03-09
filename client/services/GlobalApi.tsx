@@ -1,19 +1,25 @@
 import axios from "axios";
 const axiosClient = axios.create({
-  // baseURL:'http://192.168.12.228:1337/api',
-  baseURL: "https://localhost:1337/api",
+  baseURL: "http://192.168.0.101:1337/api",
   headers: {
-    Authorization: "Bearer " + process.env.EXPO_PUBLIC_STRAPI_API_KEY_PROD,
+    Authorization: "Bearer " + process.env.EXPO_PUBLIC_STRAPI_API_KEY,
   },
 });
 
-const GetUserInfo = (email: string) =>
+const GetUserInfo = (email) =>
   axiosClient.get("user-lists?filters[userEmail][$eq]=" + email);
 
-const CreateNewUser = (data: any) =>
-  axiosClient.post("/user-lists", { data: data });
+const CreateNewUser = (data) => axiosClient.post("/user-lists", { data: data });
+
+const GetFeaturedCategoryList = () =>
+  axiosClient.get("/ai-models?filters[isFeatured][$eq]=true&populate=*");
+
+const GetAiModels = (type) =>
+  axiosClient.get("/ai-models?filters[" + type + "][$eq]=true&populate=*");
 
 export default {
   GetUserInfo,
   CreateNewUser,
+  GetFeaturedCategoryList,
+  GetAiModels,
 };
