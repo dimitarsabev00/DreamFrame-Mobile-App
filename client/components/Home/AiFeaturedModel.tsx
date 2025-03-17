@@ -2,6 +2,7 @@ import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import GlobalApi from "../../services/GlobalApi";
 import Colors from "../../constants/Colors";
+import { router } from "expo-router";
 
 export default function AiFeaturedModel() {
   const [aiModelList, setAiModelList] = useState([]);
@@ -13,6 +14,13 @@ export default function AiFeaturedModel() {
     const result = await GlobalApi.GetFeaturedCategoryList();
     setAiModelList(result.data.data);
     console.log(aiModelList);
+  };
+
+  const OnClickAiModel = (item) => {
+    router?.push({
+      pathname: "FormInput",
+      params: item,
+    });
   };
 
   return (
@@ -36,7 +44,7 @@ export default function AiFeaturedModel() {
         style={{ marginTop: 7 }}
         renderItem={({ item, index }) => (
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={() => OnClickAiModel(item)}
             style={{
               flex: 1,
               alignItems: "center",
