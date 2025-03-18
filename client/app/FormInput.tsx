@@ -1,9 +1,11 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import TextInput_ from "./../components/FormInput/TextInput_";
 import ImageUploadComponent from "./../components/FormInput/ImageUploadComponent";
 import Colors from "@/constants/Colors";
+import GlobalApi from "@/services/GlobalApi";
+import { UserDetailContext } from "@/contexts/UserDetailContext";
 
 export default function FormInput() {
   const params = useLocalSearchParams();
@@ -12,6 +14,10 @@ export default function FormInput() {
   const [userInput, setUserInput] = useState();
   const [userImage, setUserImage] = useState();
   const [loading, setLoading] = useState(false);
+
+  const [generatedImage, setGeneratedImage] = useState();
+
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
 
   useEffect(() => {
     console.log("Params:", params);
@@ -23,8 +29,44 @@ export default function FormInput() {
   }, []);
 
   const OnGenerate = async () => {
-    console.log("aiModel", aiModel);
-    
+    setLoading(true);
+
+    const data = {
+      aiModelName: aiModel?.aiModelName,
+      inputPrompt: userInput,
+      defaultPrompt: aiModel?.defaultPrompt,
+    };
+
+    try {
+      const result = await GlobalApi.AIGenerateImage(data);
+      const AIImage = result.data.result;
+      console.log("AI Image", result.data.result);
+
+      // To Update User Credits
+      const updatedResult = await GlobalApi.UpdateUserCredits(
+        userDetail?.documentId,
+        { credits: Number(userDetail?.credits) - 1 }
+      );
+
+      setUserDetail(updatedResult?.data.data);
+
+      // Save generated image URL
+
+      const SaveImageData = {
+        imageUrl: AIImage,
+        userEmail: userDetail?.userEmail,
+      };
+
+      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData);
+      console.log(SaveImageResult.data.data);
+
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+
+      console.log(e);
+    }
+    setLoading(false);
   };
 
   return (
