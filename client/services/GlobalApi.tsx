@@ -26,6 +26,26 @@ const UpdateUserCredits = (documentId, data) =>
 const AddAiImageRecord = (data) =>
   axiosClient.post("/ai-generated-images", { data: data });
 
+const GetAllAiImages = (pageSize) =>
+  axiosClient.get(
+    "/ai-generated-images?pagination[start]=" +
+      (pageSize - 5) +
+      "&pagination[limit]=" +
+      pageSize +
+      "&pagination[withCount]=true&sort[0]=id:desc"
+  );
+
+const GetUsersAiImages = (pageSize, email) =>
+  axiosClient.get(
+    "/ai-generated-images?filters[userEmail][$eq]=" +
+      email +
+      "& pagination[start]=" +
+      (pageSize - 5) +
+      "&pagination[limit]=" +
+      pageSize +
+      "&pagination[withCount]=true&sort[0]=id:desc"
+  );
+
 export default {
   GetUserInfo,
   CreateNewUser,
@@ -34,4 +54,6 @@ export default {
   AIGenerateImage,
   UpdateUserCredits,
   AddAiImageRecord,
+  GetAllAiImages,
+  GetUsersAiImages,
 };
