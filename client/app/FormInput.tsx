@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import TextInput_ from "./../components/FormInput/TextInput_";
 import ImageUploadComponent from "./../components/FormInput/ImageUploadComponent";
 import Colors from "@/constants/Colors";
@@ -59,6 +59,13 @@ export default function FormInput() {
 
       const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData);
       console.log(SaveImageResult.data.data);
+      router.replace({
+        pathname: "viewAiImage",
+        params: {
+          imageUrl: AIImage,
+          prompt: userInput,
+        },
+      });
 
       setLoading(false);
     } catch (e) {
