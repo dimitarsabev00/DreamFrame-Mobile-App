@@ -36,6 +36,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow DreamFrame to access your photos.",
+          "savePhotosPermission": "Allow DreamFrame to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
       ]
     ],
     "experiments": {

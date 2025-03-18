@@ -1,11 +1,20 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ToastAndroid,
+} from "react-native";
 import React, { useEffect } from "react";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import Colors from "../constants/Colors";
+import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
 
 export default function ViewAiImage() {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
+  const [status, requestPermission] = MediaLibrary.usePermissions();
 
   useEffect(() => {
     console.log(params);
@@ -17,6 +26,36 @@ export default function ViewAiImage() {
       []
     );
   });
+
+  const downloadImage = async () => {
+    //Permission
+    try {
+      console.log(status);
+      if (!status?.granted) {
+        const permissionResp = await requestPermission();
+        if (!permissionResp?.granted) {
+          ToastAndroid.show(
+            "No Perssmion to download the image",
+            ToastAndroid.SHORT
+          );
+          return;
+        }
+      }
+
+      //Download Image
+      const fileUri =
+        FileSystem.documentDirectory + Date.now() + "_ImaginAI.jpg";
+      const { uri } = await FileSystem.downloadAsync(params?.imageUrl, fileUri);
+
+      //Used to Save in Gallery
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      if (asset) {
+        ToastAndroid.show("Image Downloaded!!!", ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show("Internal Server Error", ToastAndroid.SHORT);
+      }
+    } catch (e) {}
+  };
 
   return (
     <View
@@ -59,7 +98,7 @@ export default function ViewAiImage() {
         }}
       >
         <TouchableOpacity
-          // onPress={downloadImage}
+          onPress={downloadImage}
           style={{
             padding: 15,
             backgroundColor: Colors.PRIMARY,
